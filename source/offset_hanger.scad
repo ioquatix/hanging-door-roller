@@ -37,7 +37,8 @@ module bracket() {
 				translate([0, -thickness/2, roller_height]) rotate([90, 0, 0]) cylinder(r2=11.5/2, r1=thickness,h=5);
 			}
 			
-			translate([0, 5, roller_height]) rotate([90, 0, 0]) cylinder(d=8,h=thickness+5);
+			// +1 for carving out completely
+			translate([0, 5+1, roller_height]) rotate([90, 0, 0]) cylinder(d=8,h=thickness+5+1);
 		}
 		
 		//zcube([length, thickness*2, thickness]);
@@ -53,7 +54,7 @@ module attachment() {
 
 difference() {
 	union() {
-		color("green") bracket();
+		//color("green") bracket();
 		//%roller();
 		color("orange") attachment();
 	}
