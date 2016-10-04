@@ -47,14 +47,14 @@ module bracket() {
 module attachment() {
 	render() difference() {
 		zcube([length+thickness*2, 36, base_thickness]);
-		//translate([0, thickness, 0]) zcube([length+2, thickness+2,thickness+2]);
+		zcube([length+0.5, thickness+0.5,thickness+0.5]);
 	}
 }
 
 difference() {
 	union() {
 		color("green") bracket();
-		%roller();
+		//%roller();
 		color("orange") attachment();
 	}
 	 
