@@ -2,7 +2,7 @@
 use <bolts.scad>;
 use <zcube.scad>;
 
-thickness = 10;
+thickness = 8;
 length = 100;
 
 base_thickness = 8;
@@ -15,9 +15,11 @@ module holes() {
 		translate([(i*length/3), -18, base_thickness/2]) rotate([0, 0, 180]) rotate([90, 0, 0]) bolt(4, 36, 2);
 	}
 	
+	offset = thickness + 2;
+	
 	for(i=[-1.5:1.0:1.5]) {
-		translate([(i*length/3), -thickness, 0]) countersunk_hole(depth=base_thickness);
-		translate([(i*length/3), thickness, 0]) countersunk_hole(depth=base_thickness);
+		translate([(i*length/3), -offset, 0]) countersunk_hole(4, depth=base_thickness);
+		translate([(i*length/3), offset, 0]) countersunk_hole(4, depth=base_thickness);
 	}
 }
 
@@ -34,11 +36,11 @@ module bracket() {
 					translate([0, 0, roller_height]) zcube([25, thickness, thickness]);
 				}
 				
-				translate([0, -thickness/2, roller_height]) rotate([90, 0, 0]) cylinder(r2=11.5/2, r1=thickness,h=5);
+				translate([0, -thickness/2, roller_height]) rotate([90, 0, 0]) cylinder(r2=12/2, r1=thickness,h=6);
 			}
 			
 			// +1 for carving out completely
-			translate([0, 5+1, roller_height]) rotate([90, 0, 0]) cylinder(d=8,h=thickness+5+1);
+			translate([0, thickness/2+0.5, roller_height]) rotate([90, 0, 0]) hole(diameter=8,depth=thickness+6+1,inset=0);
 		}
 		
 		//zcube([length, thickness*2, thickness]);
@@ -54,9 +56,9 @@ module attachment() {
 
 difference() {
 	union() {
-		//color("green") bracket();
+		color("green") bracket();
 		//%roller();
-		color("orange") attachment();
+		//color("orange") attachment();
 	}
 	 
 	color("white") holes();
