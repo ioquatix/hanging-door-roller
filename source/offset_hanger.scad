@@ -2,6 +2,7 @@
 use <bolts.scad>;
 use <zcube.scad>;
 
+$fn = $preview ? 24 : 128;
 thickness = 8;
 length = 100;
 
@@ -40,7 +41,7 @@ module bracket() {
 			union() {
 				hull() {
 					zcube([length-0.5, thickness-0.5, base_thickness]);
-					translate([0, 0, roller_height]) zcube([25, thickness-0.5, thickness]);
+					translate([0, 0, roller_height]) zcube([25, thickness, thickness]);
 				}
 				
 				translate([0, -thickness/2, roller_height]) rotate([90, 0, 0]) cylinder(r2=12/2, r1=thickness,h=6);
@@ -72,9 +73,9 @@ module attachment() {
 
 difference() {
 	union() {
-		//color("green") bracket();
-		//roller();
-		color("orange") attachment();
+		color("green") bracket();
+		// roller();
+		// color("orange") attachment();
 	}
 	 
 	color("white") holes();

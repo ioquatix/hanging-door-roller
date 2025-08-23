@@ -1,7 +1,6 @@
 
-$radial_error = 0.1;
-
 $fn = $preview ? 24 : 128;
+RADIAL_ERROR = 0.1;
 
 ISO262_COARSE_PITCH = [
 	[1.0, 0.25],
@@ -27,43 +26,42 @@ ISO262_COARSE_PITCH = [
 	[56.0, 5.5]
 ];
 
-function coarse_pitch(d) = lookup(d, ISO262_COARSE_PITCH);
-function pitch_height(d) = coarse_pitch(d) * 0.866025;
+function screw_pitch(d) = lookup(d, ISO262_COARSE_PITCH);
 
-function fudge_factor(fn=$fn) = 1/cos(180/fn);
-function outer_radius(radius, fn=$fn, radial_error=$radial_error) = radius*fudge_factor(fn)+radial_error;
+function fudge_factor(fn) = 1/cos(180/fn);
+function outer_radius(radius, fn=$fn, radial_error=RADIAL_ERROR) = radius*fudge_factor(fn)+radial_error;
 
-module sphere_outer(radius, fn=$fn, radial_error=$radial_error) {
-	sphere(r=radius*fudge_factor(fn)+radial_error, $fn=fn);
+module sphere_outer(radius, radial_error=RADIAL_ERROR) {
+	sphere(r=radius*fudge_factor($fn)+radial_error);
 }
 
-module cylinder_outer(height, radius, fn=$fn, radial_error=$radial_error) {
-	cylinder(h=height,r=radius*fudge_factor(fn)+radial_error, $fn=fn);
+module cylinder_outer(height, radius, radial_error=RADIAL_ERROR) {
+	cylinder(h=height,r=radius*fudge_factor($fn)+radial_error);
 }
 
-module cylinder_inner(height, radius, fn=$fn, radial_error=$radial_error) {
-	cylinder(h=height,r=radius-radial_error,$fn=fn);
+module cylinder_inner(height, radius, radial_error=RADIAL_ERROR) {
+	cylinder(h=height,r=radius-radial_error);
 }
 
 // Make a hole. The diameter is the size of the screw (e.g. 3 for M3). Depth is how far the hole should go for the thread, and inset is how far out there should be a hole for the head to go.
-module hole(diameter=3, depth=6, inset=10, height=0) {
-	cylinder_outer(depth, (diameter-height)/2);
+module hole(diameter=3, depth=6, inset=10, pitch=0) {
+	cylinder_outer(depth, (diameter-pitch)/2);
 	
 	if (inset) {
-		translate([0, 0, depth]) cylinder_outer(inset, diameter, 32);
+		translate([0, 0, depth]) cylinder_outer(inset, diameter);
 	}
 }
 
 module threaded_hole(diameter=3, depth=6, inset=10) {
-	hole(diameter, depth, inset, pitch_height(diameter));
+	hole(diameter, depth, inset, screw_pitch(diameter));
 }
 
 module screw_hole(diameter = 3, depth = 16, inset = 10, thickness = 6) {
 	insert = depth - thickness;
-	height = pitch_height(diameter);
+	pitch = screw_pitch(diameter);
 	
 	// The part that the screw will thread into:
-	cylinder_outer(insert, (diameter-height)/2);
+	cylinder_outer(insert, (diameter-pitch)/2);
 	
 	translate([0, 0, insert])
 	hole(diameter, depth - insert, inset);
@@ -71,16 +69,16 @@ module screw_hole(diameter = 3, depth = 16, inset = 10, thickness = 6) {
 
 module countersunk_screw_hole(diameter = 3, depth = 16, inset = 10, thickness = 6) {
 	insert = depth - thickness;
-	height = pitch_height(diameter);
+	pitch = screw_pitch(diameter);
 	
 	// The part that the screw will thread into:
-	cylinder_outer(insert, (diameter-height)/2);
+	cylinder_outer(insert, (diameter-pitch)/2);
 	
 	translate([0, 0, insert])
 	countersunk_hole(diameter, depth - insert, inset);
 }
 
-module countersunk_hole(diameter=3, depth=6, inset=10, pitch=0, radial_error=$radial_error) {
+module countersunk_hole(diameter=3, depth=6, inset=10, pitch=0, radial_error=RADIAL_ERROR) {
 	hole(diameter, depth, inset, pitch);
 	translate([0, 0, depth-diameter/2]) cylinder(r1=diameter/2+radial_error, r2=diameter+radial_error, h=diameter/2);
 }
@@ -127,7 +125,7 @@ module mounting_hole(diameter=3, depth=6, inset=10, outset=3) {
 	}
 }
 
-!render() rotate(90, [1, 0, 0]) difference() {
+render() rotate(90, [1, 0, 0]) difference() {
 	cube([40, 10, 10]);
 	translate([5, 5, 0]) screw_hole();
 }
@@ -140,7 +138,7 @@ render() rotate(90, [1, 0, 0]) difference() {
 	translate([35, 5, 0]) knurled_hole();
 }
 
-render() rotate(90, [1, 0, 0]) difference() {
+!render() rotate(90, [1, 0, 0]) difference() {
 	cube([6*4, 12, 12]);
 	translate([6, 6, 0]) hole(diameter=5, depth=8);
 	translate([6*3, 6, 0]) hole(diameter=5.5, depth=8);
