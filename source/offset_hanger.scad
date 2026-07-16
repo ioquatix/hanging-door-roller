@@ -6,8 +6,9 @@ $fn = $preview ? 24 : 128;
 thickness = 8;
 length = 100;
 
-base_thickness = 8;
+base_thickness = 10;
 
+roller_length = length - 16;
 roller_height = 26;
 roller_offset = 48/2-10;
 
@@ -18,7 +19,10 @@ module reflect(axis) {
 
 module hole_locations() {
 		for (i=[-1:1]) {
-		translate([(i*length/3), -18, base_thickness/2]) rotate([0, 0, 180]) rotate([90, 0, 0]) children();
+			translate([(i*roller_length/3), -18, base_thickness/2])
+			rotate([0, 0, 180])
+			rotate([90, 0, 0])
+			children();
 	}
 }
 
@@ -40,7 +44,7 @@ module bracket() {
 		difference() {
 			union() {
 				hull() {
-					zcube([length-0.5, thickness-0.5, base_thickness]);
+					zcube([roller_length, thickness, thickness / 2]);
 					translate([0, 0, roller_height]) zcube([25, thickness, thickness]);
 				}
 				
@@ -62,20 +66,34 @@ module bracket() {
 	}
 }
 
+module cutout() {
+		hull() {
+			translate([0, thickness-0.1, 0]) {
+				zcube([roller_length+0.5, thickness*3, thickness / 2 + 0.5]);
+				translate([0, 0, roller_height]) zcube([25, thickness*3, thickness]);
+			}
+		}
+		
+		offset = 0;
+		
+		translate([-offset/2, 36/2 + thickness/2, 0])
+		zcube([roller_length+0.5-offset, 36, base_thickness]);
+}
+
 module attachment() {
 	render() difference() {
 		zcube([length+thickness*2, 36, base_thickness]);
-		zcube([length+0.5, thickness+0.5,thickness+0.5]);
+		#cutout();
 		
-		hole_locations() threaded_hole(4, 36, 2);
+		hole_locations() #threaded_hole(4, 36, 2);
 	}
 }
 
-difference() {
+render() difference() {
 	union() {
-		color("green") bracket();
-		// roller();
-		// color("orange") attachment();
+		//color("green") render() bracket();
+		//roller();
+		color("orange") render() attachment();
 	}
 	 
 	color("white") holes();
